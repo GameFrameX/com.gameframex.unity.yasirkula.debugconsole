@@ -1,6 +1,6 @@
 {
-  "name": "com.yasirkula.ingamedebugconsole",
-  "displayName": "In-game Debug Console",
+  "name": "com.alianblank.debugconsole",
+  "displayName": "Debug Console",
   "version": "1.6.7",
   "documentationUrl": "https://github.com/yasirkula/UnityIngameDebugConsole",
   "changelogUrl": "https://github.com/yasirkula/UnityIngameDebugConsole/releases",
