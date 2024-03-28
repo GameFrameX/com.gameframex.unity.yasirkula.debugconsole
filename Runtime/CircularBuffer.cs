@@ -1,304 +1,312 @@
 ﻿using System;
 using UnityEngine;
 
-namespace IngameDebugConsole
+namespace DebugConsole.Runtime
 {
-	public class CircularBuffer<T>
-	{
-		private readonly T[] array;
-		private int startIndex;
+    public class CircularBuffer<T>
+    {
+        private readonly T[] array;
+        private int startIndex;
 
-		public int Count { get; private set; }
-		public T this[int index] { get { return array[( startIndex + index ) % array.Length]; } }
+        public int Count { get; private set; }
 
-		public CircularBuffer( int capacity )
-		{
-			array = new T[capacity];
-		}
+        public T this[int index]
+        {
+            get { return array[(startIndex + index) % array.Length]; }
+        }
 
-		// Old elements are overwritten when capacity is reached
-		public void Add( T value )
-		{
-			if( Count < array.Length )
-				array[Count++] = value;
-			else
-			{
-				array[startIndex] = value;
-				if( ++startIndex >= array.Length )
-					startIndex = 0;
-			}
-		}
-	}
+        public CircularBuffer(int capacity)
+        {
+            array = new T[capacity];
+        }
 
-	public class DynamicCircularBuffer<T>
-	{
-		private T[] array;
-		private int startIndex;
+        // Old elements are overwritten when capacity is reached
+        public void Add(T value)
+        {
+            if (Count < array.Length)
+                array[Count++] = value;
+            else
+            {
+                array[startIndex] = value;
+                if (++startIndex >= array.Length)
+                    startIndex = 0;
+            }
+        }
+    }
 
-		public int Count { get; private set; }
-		public int Capacity { get { return array.Length; } }
+    public class DynamicCircularBuffer<T>
+    {
+        private T[] array;
+        private int startIndex;
 
-		public T this[int index]
-		{
-			get { return array[( startIndex + index ) % array.Length]; }
-			set { array[( startIndex + index ) % array.Length] = value; }
-		}
+        public int Count { get; private set; }
 
-		public DynamicCircularBuffer( int initialCapacity = 2 )
-		{
-			array = new T[initialCapacity];
-		}
+        public int Capacity
+        {
+            get { return array.Length; }
+        }
 
-		private void SetCapacity( int capacity )
-		{
-			T[] newArray = new T[capacity];
-			if( Count > 0 )
-			{
-				int elementsBeforeWrap = Mathf.Min( Count, array.Length - startIndex );
-				Array.Copy( array, startIndex, newArray, 0, elementsBeforeWrap );
-				if( elementsBeforeWrap < Count )
-					Array.Copy( array, 0, newArray, elementsBeforeWrap, Count - elementsBeforeWrap );
-			}
+        public T this[int index]
+        {
+            get { return array[(startIndex + index) % array.Length]; }
+            set { array[(startIndex + index) % array.Length] = value; }
+        }
 
-			array = newArray;
-			startIndex = 0;
-		}
+        public DynamicCircularBuffer(int initialCapacity = 2)
+        {
+            array = new T[initialCapacity];
+        }
 
-		/// <summary>Inserts the value to the beginning of the collection.</summary>
-		public void AddFirst( T value )
-		{
-			if( array.Length == Count )
-				SetCapacity( Mathf.Max( array.Length * 2, 4 ) );
+        private void SetCapacity(int capacity)
+        {
+            T[] newArray = new T[capacity];
+            if (Count > 0)
+            {
+                int elementsBeforeWrap = Mathf.Min(Count, array.Length - startIndex);
+                Array.Copy(array, startIndex, newArray, 0, elementsBeforeWrap);
+                if (elementsBeforeWrap < Count)
+                    Array.Copy(array, 0, newArray, elementsBeforeWrap, Count - elementsBeforeWrap);
+            }
 
-			startIndex = ( startIndex > 0 ) ? ( startIndex - 1 ) : ( array.Length - 1 );
-			array[startIndex] = value;
-			Count++;
-		}
+            array = newArray;
+            startIndex = 0;
+        }
 
-		/// <summary>Adds the value to the end of the collection.</summary>
-		public void Add( T value )
-		{
-			if( array.Length == Count )
-				SetCapacity( Mathf.Max( array.Length * 2, 4 ) );
+        /// <summary>Inserts the value to the beginning of the collection.</summary>
+        public void AddFirst(T value)
+        {
+            if (array.Length == Count)
+                SetCapacity(Mathf.Max(array.Length * 2, 4));
 
-			this[Count++] = value;
-		}
+            startIndex = (startIndex > 0) ? (startIndex - 1) : (array.Length - 1);
+            array[startIndex] = value;
+            Count++;
+        }
 
-		public void AddRange( DynamicCircularBuffer<T> other )
-		{
-			if( other.Count == 0 )
-				return;
+        /// <summary>Adds the value to the end of the collection.</summary>
+        public void Add(T value)
+        {
+            if (array.Length == Count)
+                SetCapacity(Mathf.Max(array.Length * 2, 4));
 
-			if( array.Length < Count + other.Count )
-				SetCapacity( Mathf.Max( array.Length * 2, Count + other.Count ) );
+            this[Count++] = value;
+        }
 
-			int insertStartIndex = ( startIndex + Count ) % array.Length;
-			int elementsBeforeWrap = Mathf.Min( other.Count, array.Length - insertStartIndex );
-			int otherElementsBeforeWrap = Mathf.Min( other.Count, other.array.Length - other.startIndex );
+        public void AddRange(DynamicCircularBuffer<T> other)
+        {
+            if (other.Count == 0)
+                return;
 
-			Array.Copy( other.array, other.startIndex, array, insertStartIndex, Mathf.Min( elementsBeforeWrap, otherElementsBeforeWrap ) );
-			if( elementsBeforeWrap < otherElementsBeforeWrap ) // This array wrapped before the other array
-				Array.Copy( other.array, other.startIndex + elementsBeforeWrap, array, 0, otherElementsBeforeWrap - elementsBeforeWrap );
-			else if( elementsBeforeWrap > otherElementsBeforeWrap ) // The other array wrapped before this array
-				Array.Copy( other.array, 0, array, insertStartIndex + otherElementsBeforeWrap, elementsBeforeWrap - otherElementsBeforeWrap );
+            if (array.Length < Count + other.Count)
+                SetCapacity(Mathf.Max(array.Length * 2, Count + other.Count));
 
-			int copiedElements = Mathf.Max( elementsBeforeWrap, otherElementsBeforeWrap );
-			if( copiedElements < other.Count ) // Both arrays wrapped and there's still some elements left to copy
-				Array.Copy( other.array, copiedElements - otherElementsBeforeWrap, array, copiedElements - elementsBeforeWrap, other.Count - copiedElements );
+            int insertStartIndex = (startIndex + Count) % array.Length;
+            int elementsBeforeWrap = Mathf.Min(other.Count, array.Length - insertStartIndex);
+            int otherElementsBeforeWrap = Mathf.Min(other.Count, other.array.Length - other.startIndex);
 
-			Count += other.Count;
-		}
+            Array.Copy(other.array, other.startIndex, array, insertStartIndex, Mathf.Min(elementsBeforeWrap, otherElementsBeforeWrap));
+            if (elementsBeforeWrap < otherElementsBeforeWrap) // This array wrapped before the other array
+                Array.Copy(other.array, other.startIndex + elementsBeforeWrap, array, 0, otherElementsBeforeWrap - elementsBeforeWrap);
+            else if (elementsBeforeWrap > otherElementsBeforeWrap) // The other array wrapped before this array
+                Array.Copy(other.array, 0, array, insertStartIndex + otherElementsBeforeWrap, elementsBeforeWrap - otherElementsBeforeWrap);
 
-		public T RemoveFirst()
-		{
-			T element = array[startIndex];
-			array[startIndex] = default( T );
+            int copiedElements = Mathf.Max(elementsBeforeWrap, otherElementsBeforeWrap);
+            if (copiedElements < other.Count) // Both arrays wrapped and there's still some elements left to copy
+                Array.Copy(other.array, copiedElements - otherElementsBeforeWrap, array, copiedElements - elementsBeforeWrap, other.Count - copiedElements);
 
-			if( ++startIndex == array.Length )
-				startIndex = 0;
+            Count += other.Count;
+        }
 
-			Count--;
-			return element;
-		}
+        public T RemoveFirst()
+        {
+            T element = array[startIndex];
+            array[startIndex] = default(T);
 
-		public T RemoveLast()
-		{
-			int index = ( startIndex + Count - 1 ) % array.Length;
-			T element = array[index];
-			array[index] = default( T );
+            if (++startIndex == array.Length)
+                startIndex = 0;
 
-			Count--;
-			return element;
-		}
+            Count--;
+            return element;
+        }
 
-		public int RemoveAll( Predicate<T> shouldRemoveElement )
-		{
-			return RemoveAll<T>( shouldRemoveElement, null, null );
-		}
+        public T RemoveLast()
+        {
+            int index = (startIndex + Count - 1) % array.Length;
+            T element = array[index];
+            array[index] = default(T);
 
-		public int RemoveAll<Y>( Predicate<T> shouldRemoveElement, Action<T, int> onElementIndexChanged, DynamicCircularBuffer<Y> synchronizedBuffer )
-		{
-			Y[] synchronizedArray = ( synchronizedBuffer != null ) ? synchronizedBuffer.array : null;
-			int elementsBeforeWrap = Mathf.Min( Count, array.Length - startIndex );
-			int removedElements = 0;
-			int i = startIndex, newIndex = startIndex, endIndex = startIndex + elementsBeforeWrap;
-			for( ; i < endIndex; i++ )
-			{
-				if( shouldRemoveElement( array[i] ) )
-					removedElements++;
-				else
-				{
-					if( removedElements > 0 )
-					{
-						T element = array[i];
-						array[newIndex] = element;
+            Count--;
+            return element;
+        }
 
-						if( synchronizedArray != null )
-							synchronizedArray[newIndex] = synchronizedArray[i];
+        public int RemoveAll(Predicate<T> shouldRemoveElement)
+        {
+            return RemoveAll<T>(shouldRemoveElement, null, null);
+        }
 
-						if( onElementIndexChanged != null )
-							onElementIndexChanged( element, newIndex - startIndex );
-					}
+        public int RemoveAll<Y>(Predicate<T> shouldRemoveElement, Action<T, int> onElementIndexChanged, DynamicCircularBuffer<Y> synchronizedBuffer)
+        {
+            Y[] synchronizedArray = (synchronizedBuffer != null) ? synchronizedBuffer.array : null;
+            int elementsBeforeWrap = Mathf.Min(Count, array.Length - startIndex);
+            int removedElements = 0;
+            int i = startIndex, newIndex = startIndex, endIndex = startIndex + elementsBeforeWrap;
+            for (; i < endIndex; i++)
+            {
+                if (shouldRemoveElement(array[i]))
+                    removedElements++;
+                else
+                {
+                    if (removedElements > 0)
+                    {
+                        T element = array[i];
+                        array[newIndex] = element;
 
-					newIndex++;
-				}
-			}
+                        if (synchronizedArray != null)
+                            synchronizedArray[newIndex] = synchronizedArray[i];
 
-			i = 0;
-			endIndex = Count - elementsBeforeWrap;
+                        if (onElementIndexChanged != null)
+                            onElementIndexChanged(element, newIndex - startIndex);
+                    }
 
-			if( newIndex < array.Length )
-			{
-				for( ; i < endIndex; i++ )
-				{
-					if( shouldRemoveElement( array[i] ) )
-						removedElements++;
-					else
-					{
-						T element = array[i];
-						array[newIndex] = element;
+                    newIndex++;
+                }
+            }
 
-						if( synchronizedArray != null )
-							synchronizedArray[newIndex] = synchronizedArray[i];
+            i = 0;
+            endIndex = Count - elementsBeforeWrap;
 
-						if( onElementIndexChanged != null )
-							onElementIndexChanged( element, newIndex - startIndex );
+            if (newIndex < array.Length)
+            {
+                for (; i < endIndex; i++)
+                {
+                    if (shouldRemoveElement(array[i]))
+                        removedElements++;
+                    else
+                    {
+                        T element = array[i];
+                        array[newIndex] = element;
 
-						if( ++newIndex == array.Length )
-						{
-							i++;
-							break;
-						}
-					}
-				}
-			}
+                        if (synchronizedArray != null)
+                            synchronizedArray[newIndex] = synchronizedArray[i];
 
-			if( newIndex == array.Length )
-			{
-				newIndex = 0;
-				for( ; i < endIndex; i++ )
-				{
-					if( shouldRemoveElement( array[i] ) )
-						removedElements++;
-					else
-					{
-						if( removedElements > 0 )
-						{
-							T element = array[i];
-							array[newIndex] = element;
+                        if (onElementIndexChanged != null)
+                            onElementIndexChanged(element, newIndex - startIndex);
 
-							if( synchronizedArray != null )
-								synchronizedArray[newIndex] = synchronizedArray[i];
+                        if (++newIndex == array.Length)
+                        {
+                            i++;
+                            break;
+                        }
+                    }
+                }
+            }
 
-							if( onElementIndexChanged != null )
-								onElementIndexChanged( element, newIndex + elementsBeforeWrap );
-						}
+            if (newIndex == array.Length)
+            {
+                newIndex = 0;
+                for (; i < endIndex; i++)
+                {
+                    if (shouldRemoveElement(array[i]))
+                        removedElements++;
+                    else
+                    {
+                        if (removedElements > 0)
+                        {
+                            T element = array[i];
+                            array[newIndex] = element;
 
-						newIndex++;
-					}
-				}
-			}
+                            if (synchronizedArray != null)
+                                synchronizedArray[newIndex] = synchronizedArray[i];
 
-			TrimEnd( removedElements );
-			if( synchronizedBuffer != null )
-				synchronizedBuffer.TrimEnd( removedElements );
+                            if (onElementIndexChanged != null)
+                                onElementIndexChanged(element, newIndex + elementsBeforeWrap);
+                        }
 
-			return removedElements;
-		}
+                        newIndex++;
+                    }
+                }
+            }
 
-		public void TrimStart( int trimCount, Action<T> perElementCallback = null )
-		{
-			TrimInternal( trimCount, startIndex, perElementCallback );
-			startIndex = ( startIndex + trimCount ) % array.Length;
-		}
+            TrimEnd(removedElements);
+            if (synchronizedBuffer != null)
+                synchronizedBuffer.TrimEnd(removedElements);
 
-		public void TrimEnd( int trimCount, Action<T> perElementCallback = null )
-		{
-			TrimInternal( trimCount, ( startIndex + Count - trimCount ) % array.Length, perElementCallback );
-		}
+            return removedElements;
+        }
 
-		private void TrimInternal( int trimCount, int startIndex, Action<T> perElementCallback )
-		{
-			int elementsBeforeWrap = Mathf.Min( trimCount, array.Length - startIndex );
-			if( perElementCallback == null )
-			{
-				Array.Clear( array, startIndex, elementsBeforeWrap );
-				if( elementsBeforeWrap < trimCount )
-					Array.Clear( array, 0, trimCount - elementsBeforeWrap );
-			}
-			else
-			{
-				for( int i = startIndex, endIndex = startIndex + elementsBeforeWrap; i < endIndex; i++ )
-				{
-					perElementCallback( array[i] );
-					array[i] = default( T );
-				}
+        public void TrimStart(int trimCount, Action<T> perElementCallback = null)
+        {
+            TrimInternal(trimCount, startIndex, perElementCallback);
+            startIndex = (startIndex + trimCount) % array.Length;
+        }
 
-				for( int i = 0, endIndex = trimCount - elementsBeforeWrap; i < endIndex; i++ )
-				{
-					perElementCallback( array[i] );
-					array[i] = default( T );
-				}
-			}
+        public void TrimEnd(int trimCount, Action<T> perElementCallback = null)
+        {
+            TrimInternal(trimCount, (startIndex + Count - trimCount) % array.Length, perElementCallback);
+        }
 
-			Count -= trimCount;
-		}
+        private void TrimInternal(int trimCount, int startIndex, Action<T> perElementCallback)
+        {
+            int elementsBeforeWrap = Mathf.Min(trimCount, array.Length - startIndex);
+            if (perElementCallback == null)
+            {
+                Array.Clear(array, startIndex, elementsBeforeWrap);
+                if (elementsBeforeWrap < trimCount)
+                    Array.Clear(array, 0, trimCount - elementsBeforeWrap);
+            }
+            else
+            {
+                for (int i = startIndex, endIndex = startIndex + elementsBeforeWrap; i < endIndex; i++)
+                {
+                    perElementCallback(array[i]);
+                    array[i] = default(T);
+                }
 
-		public void Clear()
-		{
-			int elementsBeforeWrap = Mathf.Min( Count, array.Length - startIndex );
-			Array.Clear( array, startIndex, elementsBeforeWrap );
-			if( elementsBeforeWrap < Count )
-				Array.Clear( array, 0, Count - elementsBeforeWrap );
+                for (int i = 0, endIndex = trimCount - elementsBeforeWrap; i < endIndex; i++)
+                {
+                    perElementCallback(array[i]);
+                    array[i] = default(T);
+                }
+            }
 
-			startIndex = 0;
-			Count = 0;
-		}
+            Count -= trimCount;
+        }
 
-		public int IndexOf( T value )
-		{
-			int elementsBeforeWrap = Mathf.Min( Count, array.Length - startIndex );
-			int index = Array.IndexOf( array, value, startIndex, elementsBeforeWrap );
-			if( index >= 0 )
-				return index - startIndex;
+        public void Clear()
+        {
+            int elementsBeforeWrap = Mathf.Min(Count, array.Length - startIndex);
+            Array.Clear(array, startIndex, elementsBeforeWrap);
+            if (elementsBeforeWrap < Count)
+                Array.Clear(array, 0, Count - elementsBeforeWrap);
 
-			if( elementsBeforeWrap < Count )
-			{
-				index = Array.IndexOf( array, value, 0, Count - elementsBeforeWrap );
-				if( index >= 0 )
-					return index + elementsBeforeWrap;
-			}
+            startIndex = 0;
+            Count = 0;
+        }
 
-			return -1;
-		}
+        public int IndexOf(T value)
+        {
+            int elementsBeforeWrap = Mathf.Min(Count, array.Length - startIndex);
+            int index = Array.IndexOf(array, value, startIndex, elementsBeforeWrap);
+            if (index >= 0)
+                return index - startIndex;
 
-		public void ForEach( Action<T> action )
-		{
-			int elementsBeforeWrap = Mathf.Min( Count, array.Length - startIndex );
-			for( int i = startIndex, endIndex = startIndex + elementsBeforeWrap; i < endIndex; i++ )
-				action( array[i] );
-			for( int i = 0, endIndex = Count - elementsBeforeWrap; i < endIndex; i++ )
-				action( array[i] );
-		}
-	}
+            if (elementsBeforeWrap < Count)
+            {
+                index = Array.IndexOf(array, value, 0, Count - elementsBeforeWrap);
+                if (index >= 0)
+                    return index + elementsBeforeWrap;
+            }
+
+            return -1;
+        }
+
+        public void ForEach(Action<T> action)
+        {
+            int elementsBeforeWrap = Mathf.Min(Count, array.Length - startIndex);
+            for (int i = startIndex, endIndex = startIndex + elementsBeforeWrap; i < endIndex; i++)
+                action(array[i]);
+            for (int i = 0, endIndex = Count - elementsBeforeWrap; i < endIndex; i++)
+                action(array[i]);
+        }
+    }
 }

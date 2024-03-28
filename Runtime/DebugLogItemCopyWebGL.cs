@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace IngameDebugConsole
+namespace DebugConsole.Runtime
 {
 	public class DebugLogItemCopyWebGL : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 	{

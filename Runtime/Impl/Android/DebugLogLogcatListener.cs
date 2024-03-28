@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // Credit: https://stackoverflow.com/a/41018028/2373034
-namespace IngameDebugConsole
+namespace DebugConsole.Runtime
 {
 	public class DebugLogLogcatListener : AndroidJavaProxy
 	{

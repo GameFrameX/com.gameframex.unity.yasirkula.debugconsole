@@ -7,41 +7,41 @@ using UnityEngine.EventSystems;
 // 
 // Procedure: if, after a user input (drag or scroll), scrollbar is at the bottom, then 
 // snap to bottom shall be true, otherwise it shall be false
-namespace IngameDebugConsole
+namespace DebugConsole.Runtime
 {
-	public class DebugsOnScrollListener : MonoBehaviour, IScrollHandler, IBeginDragHandler, IEndDragHandler
-	{
-		public ScrollRect debugsScrollRect;
-		public DebugLogManager debugLogManager;
+    public class DebugsOnScrollListener : MonoBehaviour, IScrollHandler, IBeginDragHandler, IEndDragHandler
+    {
+        public ScrollRect debugsScrollRect;
+        public DebugLogManager debugLogManager;
 
-		public void OnScroll( PointerEventData data )
-		{
-			debugLogManager.SnapToBottom = IsScrollbarAtBottom();
-		}
+        public void OnScroll(PointerEventData data)
+        {
+            debugLogManager.SnapToBottom = IsScrollbarAtBottom();
+        }
 
-		public void OnBeginDrag( PointerEventData data )
-		{
-			debugLogManager.SnapToBottom = false;
-		}
+        public void OnBeginDrag(PointerEventData data)
+        {
+            debugLogManager.SnapToBottom = false;
+        }
 
-		public void OnEndDrag( PointerEventData data )
-		{
-			debugLogManager.SnapToBottom = IsScrollbarAtBottom();
-		}
+        public void OnEndDrag(PointerEventData data)
+        {
+            debugLogManager.SnapToBottom = IsScrollbarAtBottom();
+        }
 
-		public void OnScrollbarDragStart( BaseEventData data )
-		{
-			debugLogManager.SnapToBottom = false;
-		}
+        public void OnScrollbarDragStart(BaseEventData data)
+        {
+            debugLogManager.SnapToBottom = false;
+        }
 
-		public void OnScrollbarDragEnd( BaseEventData data )
-		{
-			debugLogManager.SnapToBottom = IsScrollbarAtBottom();
-		}
+        public void OnScrollbarDragEnd(BaseEventData data)
+        {
+            debugLogManager.SnapToBottom = IsScrollbarAtBottom();
+        }
 
-		private bool IsScrollbarAtBottom()
-		{
-			return debugsScrollRect.verticalNormalizedPosition <= 1E-6f;
-		}
-	}
+        private bool IsScrollbarAtBottom()
+        {
+            return debugsScrollRect.verticalNormalizedPosition <= 1E-6f;
+        }
+    }
 }
