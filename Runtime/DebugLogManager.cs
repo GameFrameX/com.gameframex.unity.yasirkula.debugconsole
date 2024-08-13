@@ -82,9 +82,7 @@ namespace DebugConsole.Runtime
         private bool toggleWithKey = false;
 
 #if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
-		[SerializeField]
-		[HideInInspector]
-		public InputAction toggleBinding = new InputAction( "Toggle Binding", type: InputActionType.Button, binding: "<Keyboard>/backquote", expectedControlType: "Button" );
+        [SerializeField] [HideInInspector] public InputAction toggleBinding = new InputAction("Toggle Binding", type: InputActionType.Button, binding: "<Keyboard>/backquote", expectedControlType: "Button");
 #else
         [SerializeField] [HideInInspector] private KeyCode toggleKey = KeyCode.BackQuote;
 #endif
@@ -112,14 +110,10 @@ namespace DebugConsole.Runtime
         [SerializeField] [HideInInspector] [Tooltip("If enabled, timestamps will be displayed for logs even if they aren't expanded")]
         internal bool alwaysDisplayTimestamps = false;
 
-        [SerializeField]
-        [HideInInspector]
-        [Tooltip("If the number of logs reach this limit, the oldest log(s) will be deleted to limit the RAM usage. It's recommended to set this value as low as possible")]
+        [SerializeField] [HideInInspector] [Tooltip("If the number of logs reach this limit, the oldest log(s) will be deleted to limit the RAM usage. It's recommended to set this value as low as possible")]
         private int maxLogCount = int.MaxValue;
 
-        [SerializeField]
-        [HideInInspector]
-        [Tooltip("How many log(s) to delete when the threshold is reached (all logs are iterated during this operation so it should neither be too low nor too high)")]
+        [SerializeField] [HideInInspector] [Tooltip("How many log(s) to delete when the threshold is reached (all logs are iterated during this operation so it should neither be too low nor too high)")]
         private int logsToRemoveAfterMaxLogCount = 16;
 
         [SerializeField]
@@ -170,9 +164,7 @@ namespace DebugConsole.Runtime
         private int maxLogLength = 10000;
 
 #if UNITY_EDITOR || UNITY_STANDALONE || UNITY_WEBGL
-        [SerializeField]
-        [HideInInspector]
-        [Tooltip("If enabled, on standalone platforms, command input field will automatically be focused (start receiving keyboard input) after opening the console window")]
+        [SerializeField] [HideInInspector] [Tooltip("If enabled, on standalone platforms, command input field will automatically be focused (start receiving keyboard input) after opening the console window")]
         private bool autoFocusOnCommandInputField = true;
 #endif
 
@@ -503,19 +495,19 @@ namespace DebugConsole.Runtime
 #endif
 
 #if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
-			toggleBinding.performed += ( context ) =>
-			{
-				if( toggleWithKey )
-				{
-					if( isLogWindowVisible )
-						HideLogWindow();
-					else
-						ShowLogWindow();
-				}
-			};
+            toggleBinding.performed += (context) =>
+            {
+                if (toggleWithKey)
+                {
+                    if (isLogWindowVisible)
+                        HideLogWindow();
+                    else
+                        ShowLogWindow();
+                }
+            };
 
-			// On new Input System, scroll sensitivity is much higher than legacy Input system
-			logItemsScrollRect.scrollSensitivity *= 0.25f;
+            // On new Input System, scroll sensitivity is much higher than legacy Input system
+            logItemsScrollRect.scrollSensitivity *= 0.25f;
 #endif
         }
 
@@ -540,14 +532,12 @@ namespace DebugConsole.Runtime
 #endif
             }
 
-#if IDG_ENABLE_HELPER_COMMANDS || IDG_ENABLE_LOGS_SAVE_COMMAND
-			DebugLogConsole.AddCommand( "logs.save", "Saves logs to persistentDataPath", SaveLogsToFile );
-			DebugLogConsole.AddCommand<string>( "logs.save", "Saves logs to the specified file", SaveLogsToFile );
-#endif
+            DebugLogConsole.AddCommand("logs.save", "Saves logs to persistentDataPath", SaveLogsToFile);
+            DebugLogConsole.AddCommand<string>("logs.save", "Saves logs to the specified file", SaveLogsToFile);
 
 #if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
-			if( toggleWithKey )
-				toggleBinding.Enable();
+            if (toggleWithKey)
+                toggleBinding.Enable();
 #endif
 
             //Debug.LogAssertion( "assert" );
@@ -573,8 +563,8 @@ namespace DebugConsole.Runtime
             DebugLogConsole.RemoveCommand("logs.save");
 
 #if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
-			if( toggleBinding.enabled )
-				toggleBinding.Disable();
+            if (toggleBinding.enabled)
+                toggleBinding.Disable();
 #endif
         }
 
@@ -684,7 +674,7 @@ namespace DebugConsole.Runtime
             {
                 /// If log window isn't visible, remove the logs over time (i.e. don't remove more than <see cref="logsToRemoveAfterMaxLogCount"/>) to avoid performance issues.
                 int numberOfLogsToRemove = Mathf.Min(!isLogWindowVisible ? logsToRemoveAfterMaxLogCount : (uncollapsedLogEntries.Count - maxLogCount + logsToRemoveAfterMaxLogCount),
-                    uncollapsedLogEntries.Count);
+                                                     uncollapsedLogEntries.Count);
                 RemoveOldestLogs(numberOfLogsToRemove);
             }
 
@@ -830,11 +820,11 @@ namespace DebugConsole.Runtime
                 if (commandInputField.isFocused && commandHistory.Count > 0)
                 {
 #if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
-					if( Keyboard.current != null )
+                    if (Keyboard.current != null)
 #endif
                     {
 #if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
-						if( Keyboard.current[Key.UpArrow].wasPressedThisFrame )
+                        if (Keyboard.current[Key.UpArrow].wasPressedThisFrame)
 #else
                         if (Input.GetKeyDown(KeyCode.UpArrow))
 #endif
@@ -851,7 +841,7 @@ namespace DebugConsole.Runtime
                             commandInputField.caretPosition = commandInputField.text.Length;
                         }
 #if ENABLE_INPUT_SYSTEM && !ENABLE_LEGACY_INPUT_MANAGER
-						else if( Keyboard.current[Key.DownArrow].wasPressedThisFrame && commandHistoryIndex != -1 )
+                        else if (Keyboard.current[Key.DownArrow].wasPressedThisFrame && commandHistoryIndex != -1)
 #else
                         else if (Input.GetKeyDown(KeyCode.DownArrow) && commandHistoryIndex != -1)
 #endif
@@ -1203,8 +1193,8 @@ namespace DebugConsole.Runtime
                 return;
 
             DebugLogEntry logEntryToSelectAndFocus = (indexOfLogEntryToSelectAndFocus >= 0 && indexOfLogEntryToSelectAndFocus < logEntriesToShow.Count)
-                ? logEntriesToShow[indexOfLogEntryToSelectAndFocus]
-                : null;
+                                                         ? logEntriesToShow[indexOfLogEntryToSelectAndFocus]
+                                                         : null;
 
             anyCollapsedLogRemoved = false;
             removedLogEntriesToShowCount = 0;
