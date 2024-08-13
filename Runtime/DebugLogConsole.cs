@@ -131,9 +131,8 @@ namespace DebugConsole.Runtime
             AddCommand("help", "Prints all commands", LogAllCommands);
             AddCommand<string>("help", "Prints all matching commands", LogAllCommandsWithName);
 #endif
-#if IDG_ENABLE_HELPER_COMMANDS || IDG_ENABLE_SYSINFO_COMMAND
-			AddCommand( "sysinfo", "Prints system information", LogSystemInfo );
-#endif
+            AddCommand("sysinfo", "Prints system information", LogSystemInfo);
+
 
 #if UNITY_EDITOR || !NETFX_CORE
             // Find all [ConsoleMethod] functions
@@ -294,11 +293,11 @@ namespace DebugConsole.Runtime
         {
             StringBuilder stringBuilder = new StringBuilder(1024);
             stringBuilder.Append("Rig: ").AppendSysInfoIfPresent(SystemInfo.deviceModel).AppendSysInfoIfPresent(SystemInfo.processorType)
-                .AppendSysInfoIfPresent(SystemInfo.systemMemorySize, "MB RAM").Append(SystemInfo.processorCount).Append(" cores\n");
+                         .AppendSysInfoIfPresent(SystemInfo.systemMemorySize, "MB RAM").Append(SystemInfo.processorCount).Append(" cores\n");
             stringBuilder.Append("OS: ").Append(SystemInfo.operatingSystem).Append("\n");
             stringBuilder.Append("GPU: ").Append(SystemInfo.graphicsDeviceName).Append(" ").Append(SystemInfo.graphicsMemorySize)
-                .Append("MB ").Append(SystemInfo.graphicsDeviceVersion)
-                .Append(SystemInfo.graphicsMultiThreaded ? " multi-threaded\n" : "\n");
+                         .Append("MB ").Append(SystemInfo.graphicsDeviceVersion)
+                         .Append(SystemInfo.graphicsMultiThreaded ? " multi-threaded\n" : "\n");
             stringBuilder.Append("Data Path: ").Append(Application.dataPath).Append("\n");
             stringBuilder.Append("Persistent Data Path: ").Append(Application.persistentDataPath).Append("\n");
             stringBuilder.Append("StreamingAssets Path: ").Append(Application.streamingAssetsPath).Append("\n");
@@ -629,7 +628,7 @@ namespace DebugConsole.Runtime
                     int parameterSignatureStartIndex = methodSignature.Length;
 
                     methodSignature.Append("[").Append(GetTypeReadableName(parameterTypes[i])).Append(" ")
-                        .Append((parameterNames != null && i < parameterNames.Length && !string.IsNullOrEmpty(parameterNames[i])) ? parameterNames[i] : parameters[i].Name).Append("]");
+                                   .Append((parameterNames != null && i < parameterNames.Length && !string.IsNullOrEmpty(parameterNames[i])) ? parameterNames[i] : parameters[i].Name).Append("]");
 
                     if (i < parameterTypes.Length - 1)
                         methodSignature.Append(" ");
@@ -737,8 +736,8 @@ namespace DebugConsole.Runtime
             {
                 commandIndex = ~commandIndex;
                 return (commandIndex < methods.Count && caseInsensitiveComparer.IsPrefix(methods[commandIndex].command, commandStart, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace))
-                    ? methods[commandIndex].command
-                    : null;
+                           ? methods[commandIndex].command
+                           : null;
             }
 
             // Find the next command that starts with commandStart and is different from previousSuggestion
