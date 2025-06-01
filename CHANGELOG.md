@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.6.12](https://github.com/GameFrameX/com.gameframex.unity.yasirkula.debugconsole/tree/1.6.12) (2025-06-01)
+
+[Full Changelog](https://github.com/GameFrameX/com.gameframex.unity.yasirkula.debugconsole/compare/1.6.11...1.6.12)
+
 ## [1.6.11](https://github.com/GameFrameX/com.gameframex.unity.yasirkula.debugconsole/tree/1.6.11) (2025-05-31)
 
 [Full Changelog](https://github.com/GameFrameX/com.gameframex.unity.yasirkula.debugconsole/compare/1.6.10...1.6.11)
