@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/gameframex/com.gameframex.unity.yasirkula.debugconsole/compare/1.6.12...1.7.0) (2025-12-23)
+
+
+### Features
+
+* **ci:** change ci ([f854323](https://github.com/gameframex/com.gameframex.unity.yasirkula.debugconsole/commit/f854323503ace09bb520f2f7f1c23684a8b27f96))
+
 # Changelog
 
 ## [1.6.12](https://github.com/GameFrameX/com.gameframex.unity.yasirkula.debugconsole/tree/1.6.12) (2025-06-01)
